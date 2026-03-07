@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <title>Director Task</title>
+
+  <!-- jsPsych 7.3.4 -->
+  <script src="jspsych/jspsych.js"></script>
+  <script src="jspsych/plugin-html-keyboard-response.js"></script>
+  <script src="jspsych/plugin-html-button-response.js"></script>
+  <script src="jspsych/plugin-preload.js"></script>
+  <link rel="stylesheet" href="jspsych/jspsych.css">
+
+  <!-- Trial data -->
+  <script src="js/trials_data.js"></script>
+
+  <style>
+    body { background: #555; margin: 0; }
+
+    /* --- Startsida --- */
+    #start-screen {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+    }
+    .start-form {
+      background: white; padding: 30px 40px; border-radius: 8px;
+      max-width: 460px; width: 100%; font-family: Arial, sans-serif;
+    }
+    .start-form h2 { margin-top: 0; }
+    .start-form label { display: block; margin-top: 16px; font-weight: bold; }
+    .start-form input, .start-form select {
+      width: 100%; padding: 8px; margin-top: 4px;
+      font-size: 16px; border: 1px solid #ccc; border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .start-form button {
+      margin-top: 24px; width: 100%; padding: 12px;
+      font-size: 18px; background: #4a90d9; color: white;
+      border: none; border-radius: 4px; cursor: pointer;
+    }
+    .start-form button:hover { background: #357abd; }
+    .start-form .error { color: red; margin-top: 8px; font-size: 14px; }
+
+    /* --- Forsøksvisning --- */
+    #trial-wrapper {
+      position: relative; display: inline-block;
+      user-select: none; -webkit-user-select: none;
+    }
+    #trial-img {
+      display: block; max-height: 75vh; width: auto;
+    }
+    #grid-overlay {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+    .shelf-cell {
+      position: absolute; cursor: pointer;
+      border: 3px solid transparent; box-sizing: border-box;
+    }
+    .shelf-cell.active:hover { border-color: rgba(255,255,0,0.7); }
+    .shelf-cell.selected { border-color: yellow; background: rgba(255,255,0,0.15); }
+
+    /* Celleposisjonar i % av 720×540 bilete */
+    .cell-r0c0 { left:9.7%;  top:15.4%; width:12.2%; height:16.7%; }
+    .cell-r0c1 { left:27.9%; top:15.4%; width:11.9%; height:16.7%; }
+    .cell-r0c2 { left:45.9%; top:15.4%; width:11.9%; height:16.7%; }
+    .cell-r0c3 { left:64.0%; top:15.4%; width:12.1%; height:16.7%; }
+    .cell-r1c0 { left:9.7%;  top:35.7%; width:12.2%; height:16.7%; }
+    .cell-r1c1 { left:27.9%; top:35.7%; width:11.9%; height:16.7%; }
+    .cell-r1c2 { left:45.9%; top:35.7%; width:11.9%; height:16.7%; }
+    .cell-r1c3 { left:64.0%; top:35.7%; width:12.1%; height:16.7%; }
+    .cell-r2c0 { left:9.7%;  top:56.3%; width:12.2%; height:16.7%; }
+    .cell-r2c1 { left:27.9%; top:56.3%; width:11.9%; height:16.7%; }
+    .cell-r2c2 { left:45.9%; top:56.3%; width:11.9%; height:16.7%; }
+    .cell-r2c3 { left:64.0%; top:56.3%; width:12.1%; height:16.7%; }
+    .cell-r3c0 { left:9.7%;  top:76.9%; width:12.2%; height:16.7%; }
+    .cell-r3c1 { left:27.9%; top:76.9%; width:11.9%; height:16.7%; }
+    .cell-r3c2 { left:45.9%; top:76.9%; width:11.9%; height:16.7%; }
+    .cell-r3c3 { left:64.0%; top:76.9%; width:12.1%; height:16.7%; }
+
+    #instruction-box {
+      background: rgba(0,0,0,0.78); color: white;
+      padding: 10px 20px; font-size: 1.2em;
+      font-family: Arial, sans-serif; text-align: center;
+      border-radius: 0 0 6px 6px; min-height: 2.2em;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Startsida (vises før jsPsych startar) -->
+<div id="start-screen">
+  <div class="start-form">
+    <h2>Director Task – oppstart</h2>
+    <label for="pid">Deltakar-ID:</label>
+    <input type="text" id="pid" placeholder="t.d. P001" autocomplete="off">
+    <label for="tver">Test-versjon (1–6):</label>
+    <select id="tver">
+      <option value="1">1</option><option value="2">2</option>
+      <option value="3">3</option><option value="4">4</option>
+      <option value="5">5</option><option value="6">6</option>
+    </select>
+    <label style="margin-top:18px;display:flex;align-items:center;gap:8px;font-weight:normal;">
+      <input type="checkbox" id="kortversjon" style="width:auto;">
+      Kortversjon (3 øving + 3 ekte, berre for testing)
+    </label>
+    <div class="error" id="start-error"></div>
+    <button onclick="startExperiment()">Start</button>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// Konfigurasjon
+// ─────────────────────────────────────────────
+// RESPONSE_MODE styrer korleis deltakaren svarar:
+//   "click"      – Version A: eitt klikk på objektet (noverande)
+//   "two-click"  – Version B: klikk objekt, så klikk korge
+//   "drag"       – Version C: dra objekt til korge
+const RESPONSE_MODE = "click";
+
+const CFG = {
+  imgDir: 'img/',
+  sndDir: 'snd/',
+  previewDuration: 2000,
+  maxTrialDuration: 6000,
+  cellIds: ['r0c0','r0c1','r0c2','r0c3',
+            'r1c0','r1c1','r1c2','r1c3',
+            'r2c0','r2c1','r2c2','r2c3',
+            'r3c0','r3c1','r3c2','r3c3'],
+};
+
+// Mapping frå bokstav (correct_answer) til celle-ID
+const CELL_MAP = {
+  A:'r0c0', B:'r0c1', C:'r0c2', D:'r0c3',
+  E:'r1c0', F:'r1c1', G:'r1c2', H:'r1c3',
+  I:'r2c0', J:'r2c1', K:'r2c2', L:'r2c3',
+  M:'r3c0', N:'r3c1', O:'r3c2', P:'r3c3',
+};
+
+
+// ─────────────────────────────────────────────
+// Øvingsdata
+// ─────────────────────────────────────────────
+const PRACTICE = {
+  director: [
+    { picture: 'P1.bmp', soundfile: 'P1V1.wav', instruction: 'Flytt egget' },
+    { picture: 'P1.bmp', soundfile: 'P1V2.wav', instruction: 'Flytt sokken' },
+    { picture: 'P1.bmp', soundfile: 'P1V3.wav', instruction: 'Flytt lommeboken' },
+    { picture: 'P2.bmp', soundfile: 'P2V1.wav', instruction: 'Flytt babyen' },
+    { picture: 'P2.bmp', soundfile: 'P2V2.wav', instruction: 'Flytt telefonen' },
+    { picture: 'P2.bmp', soundfile: 'P2V3.wav', instruction: 'Flytt neglelakken' },
+  ],
+  no_director: [
+    { picture: 'nP1.bmp', soundfile: 'nP1V1.wav', instruction: 'Flytt pennen' },
+    { picture: 'nP1.bmp', soundfile: 'nP1V2.wav', instruction: 'Flytt lyset' },
+    { picture: 'nP1.bmp', soundfile: 'nP1V3.wav', instruction: 'Flytt bilen' },
+    { picture: 'nP2.bmp', soundfile: 'nP2V1.wav', instruction: 'Flytt kortene' },
+    { picture: 'nP2.bmp', soundfile: 'nP2V2.wav', instruction: 'Flytt ballen' },
+    { picture: 'nP2.bmp', soundfile: 'nP2V3.wav', instruction: 'Flytt pipen' },
+  ]
+};
+
+function buildPracticeTimeline(useDirector, participantId, testVersion, jsPsychInstance) {
+  const key = useDirector ? 'director' : 'no_director';
+  const trials = PRACTICE[key];
+  const timeline = [];
+  let lastPicture = null;
+  for (const t of trials) {
+    // 2 sek preview når biletet skifter
+    if (t.picture !== lastPicture) {
+      timeline.push(makeTrial(
+        { picture: t.picture, picture_no_director: t.picture,
+          soundfile: t.soundfile, instruction: t.instruction,
+          order_set: 0, item_number: 0, trial_type: -1, type: 'practice' },
+        useDirector, true, participantId, testVersion, jsPsychInstance
+      ));
+      lastPicture = t.picture;
+    }
+    const trialData = {
+      picture: t.picture,
+      picture_no_director: t.picture,
+      soundfile: t.soundfile,
+      instruction: t.instruction,
+      order_set: 0,
+      item_number: 0,
+      trial_type: -1,
+      type: 'practice',
+      correct_answer: '?',
+      wrong_answer: '?',
+    };
+    const trial = makeTrial(trialData, useDirector, false, participantId, testVersion, jsPsychInstance);
+    // Merk som øving slik at det ikkje kjem med i CSV
+    const origFinish = trial.on_finish;
+    trial.on_finish = function(data) {
+      if (origFinish) origFinish(data);
+      data.is_trial = false;
+    };
+    timeline.push(trial);
+  }
+  return timeline;
+}
+
+// ─────────────────────────────────────────────
+// Hjelpe-funksjonar
+// ─────────────────────────────────────────────
+function imgPath(basename) {
+  return CFG.imgDir + basename.replace(/\.bmp$/i, '') + '.png';
+}
+function sndPath(filename) {
+  return CFG.sndDir + filename.replace(/\.wav$/i, '') + '.wav';
+}
+
+function isNoDirectorFirst(testVersion) {
+  const label = TEST_TO_ORDER[String(testVersion)] || '';
+  return label.includes(' B ');
+}
+
+function groupIntoBlocks(trials) {
+  const map = {};
+  for (const t of trials) {
+    if (!map[t.order_set]) map[t.order_set] = [];
+    map[t.order_set].push(t);
+  }
+  return Object.values(map)
+    .sort((a, b) => a[0].order_set - b[0].order_set)
+    .map(b => b.sort((a, b) => a.item_number - b.item_number));
+}
+
+function gridHtml() {
+  return CFG.cellIds.map(id =>
+    `<div class="shelf-cell cell-${id}" data-cell="${id}"></div>`
+  ).join('');
+}
+
+// ─────────────────────────────────────────────
+// Lag eitt forsøk (bilete + lydinstruks + klikk)
+// ─────────────────────────────────────────────
+function makeTrial(trialData, useDirector, isPreview, participantId, testVersion, jsPsychInstance) {
+  const picFile = useDirector ? trialData.picture : trialData.picture_no_director;
+  let trialAudio = null;
+  let trialDone  = false;
+
+  return {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <div id="trial-wrapper">
+        <img id="trial-img" src="${imgPath(picFile)}" alt="shelf" draggable="false">
+        <div id="grid-overlay">${gridHtml()}</div>
+      </div>
+      ${isPreview ? '' : `<div id="instruction-box">${trialData.instruction}</div>`}
+    `,
+    choices: 'NO_KEYS',
+    trial_duration: isPreview ? CFG.previewDuration : CFG.maxTrialDuration,
+    response_ends_trial: false,
+
+    on_load: function() {
+      if (isPreview) return;
+
+      let audioStartTime = null;
+      const audio = new Audio(sndPath(trialData.soundfile));
+      trialAudio = audio;
+      audio.addEventListener('play', () => { audioStartTime = performance.now(); });
+      audio.play().catch(() => {});
+
+      const overlay = document.getElementById('grid-overlay');
+      overlay.style.pointerEvents = 'auto';
+      overlay.querySelectorAll('.shelf-cell').forEach(c => c.classList.add('active'));
+
+      overlay.addEventListener('click', function handler(e) {
+        const cell = e.target.closest('.shelf-cell');
+        if (!cell) return;
+        overlay.removeEventListener('click', handler);
+        overlay.style.pointerEvents = 'none';
+        overlay.querySelectorAll('.shelf-cell').forEach(c => c.classList.remove('active'));
+        cell.classList.add('selected');
+
+        const rt = audioStartTime !== null
+          ? Math.round(performance.now() - audioStartTime) : null;
+
+        const clickedCell = cell.dataset.cell;
+        const correctCell = CELL_MAP[trialData.correct_answer] || null;
+        const correct = correctCell !== null ? (clickedCell === correctCell ? 1 : 0) : null;
+        const competitorCell = CELL_MAP[trialData.wrong_answer] || null;
+        const chose_competitor = (trialData.trial_type === 2 && correct === 0 && competitorCell !== null)
+          ? (clickedCell === competitorCell ? 1 : 0) : null;
+
+        const responseData = {
+          participant_id:  participantId,
+          test_version:    testVersion,
+          condition:       useDirector ? 'director' : 'no_director',
+          order_set:       trialData.order_set,
+          item_number:     trialData.item_number,
+          trial_type_num:  trialData.trial_type,
+          trial_type_label:trialData.type,
+          picture:         picFile,
+          instruction:     trialData.instruction,
+          soundfile:       trialData.soundfile,
+          correct_answer:  trialData.correct_answer,
+          competitor_cell: trialData.wrong_answer,
+          cell_clicked:    clickedCell,
+          rt_from_audio:   rt,
+          correct:          correct,
+          chose_competitor: chose_competitor,
+          is_preview:       false,
+          is_trial:         true,
+        };
+
+        // Vent til lydfila er ferdig naturleg før vi går vidare
+        const finishAfterAudio = () => {
+          if (!trialDone) jsPsychInstance.finishTrial(responseData);
+        };
+        if (audio.ended || audio.paused) {
+          finishAfterAudio();
+        } else {
+          audio.addEventListener('ended', finishAfterAudio, { once: true });
+        }
+      });
+    },
+
+    on_finish: function(data) {
+      trialDone = true;
+      // Stopp lyd berre ved timeout (ved klikk spelar lyden ferdig naturleg)
+      if (trialAudio && !data.is_trial) {
+        trialAudio.pause();
+        trialAudio = null;
+      }
+      // Preview eller timeout
+      if (!data.is_trial) {
+        Object.assign(data, {
+          is_preview:      isPreview,
+          participant_id:  participantId,
+          test_version:    testVersion,
+          condition:       useDirector ? 'director' : 'no_director',
+          order_set:       trialData.order_set,
+          item_number:     trialData.item_number,
+          trial_type_num:  trialData.trial_type,
+          trial_type_label:trialData.type,
+          picture:         picFile,
+          instruction:     trialData.instruction,
+          soundfile:       trialData.soundfile,
+          correct_answer:  trialData.correct_answer,
+          competitor_cell: trialData.wrong_answer,
+          cell_clicked:    null,
+          rt_from_audio:   null,
+          correct:          null,
+          chose_competitor: null,
+          is_trial:         !isPreview,
+        });
+      }
+    }
+  };
+}
+
+// ─────────────────────────────────────────────
+// Bygg timeline for ei betinging
+// ─────────────────────────────────────────────
+function buildConditionTimeline(trials, useDirector, participantId, testVersion, jsPsychInstance) {
+  const timeline = [];
+  for (const block of groupIntoBlocks(trials)) {
+    // 2 sek biletpresentasjon
+    timeline.push(makeTrial(block[0], useDirector, true, participantId, testVersion, jsPsychInstance));
+    // Tre instruksjonar
+    for (const trial of block) {
+      timeline.push(makeTrial(trial, useDirector, false, participantId, testVersion, jsPsychInstance));
+    }
+  }
+  return timeline;
+}
+
+// ─────────────────────────────────────────────
+// Last ned CSV
+// ─────────────────────────────────────────────
+function downloadCSV(jsPsych, participantId) {
+  // Hent berre responsforsøk (ikkje preview, ikkje øving)
+  const data = jsPsych.data.get()
+    .filter({ is_trial: true, is_preview: false });
+
+  // Rename trial_index → timeline_index manuelt
+  const rows = data.values().map(d => {
+    const r = Object.assign({}, d);
+    r.timeline_index = r.trial_index;
+    delete r.trial_index;
+    return r;
+  });
+
+  // Bygg CSV med ønskte kolonnar
+  const keep = ['timeline_index','participant_id','test_version','condition',
+                'order_set','item_number','trial_type_num','trial_type_label',
+                'picture','instruction','soundfile','correct_answer',
+                'competitor_cell','cell_clicked','rt_from_audio','correct','chose_competitor'];
+  const header = keep.join(',');
+  const lines  = rows.map(r =>
+    keep.map(k => JSON.stringify(r[k] ?? '')).join(',')
+  );
+  const csv = [header, ...lines].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `director_${participantId}_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// ─────────────────────────────────────────────
+// Start eksperimentet (kallast frå Start-knappen)
+// ─────────────────────────────────────────────
+function startExperiment() {
+  const pid  = document.getElementById('pid').value.trim();
+  const tver = parseInt(document.getElementById('tver').value);
+
+  if (!pid) {
+    document.getElementById('start-error').textContent = 'Skriv inn deltakar-ID.';
+    return;
+  }
+
+  const orderLabel = TEST_TO_ORDER[String(tver)];
+  if (!orderLabel) {
+    document.getElementById('start-error').textContent = 'Ugyldig test-versjon.';
+    return;
+  }
+
+  const trials = TRIAL_ORDERS[orderLabel];
+  const isKort = document.getElementById('kortversjon').checked;
+  document.getElementById('start-screen').style.display = 'none';
+
+  const noDirectorFirst = isNoDirectorFirst(tver);
+  const jsPsych = initJsPsych();
+
+  const dirPractice   = buildPracticeTimeline(true,  pid, tver, jsPsych);
+  const dirTimeline   = buildConditionTimeline(trials, true,  pid, tver, jsPsych);
+  const noDirPractice = buildPracticeTimeline(false, pid, tver, jsPsych);
+  const noDirTimeline = buildConditionTimeline(trials, false, pid, tver, jsPsych);
+
+  const instrDir = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<div style="max-width:680px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;line-height:1.6;">
+      <h2>Instruksjonar – Director-betinging</h2>
+      <p>Du vil sjå ei hylle med ulike objekt. Direktøren (mannen til høgre) ber deg flytte eit objekt til korga.</p>
+      <p><strong>Viktig:</strong> Direktøren kan ikkje sjå objekt i hyller med <strong>grå</strong> bakgrunn. Vel alltid objektet direktøren kan sjå.</p>
+      <p>Klikk på rett objekt så raskt og nøyaktig som mogleg.</p>
+    </div>`,
+    choices: ['Start øving →'],
+  };
+
+  const instrNoDir = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<div style="max-width:680px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;line-height:1.6;">
+      <h2>Instruksjonar – No-Director-betinging</h2>
+      <p>No er det ingen direktør. Regel: Flytt alltid eit objekt frå ei hylle med <strong>blå</strong> bakgrunn. Ignorer objekt i hyller med grå bakgrunn.</p>
+      <p>Klikk på rett objekt så raskt og nøyaktig som mogleg.</p>
+    </div>`,
+    choices: ['Start øving →'],
+  };
+
+  const pause = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<div style="max-width:580px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
+      <h2>Pause</h2><p>Du er halvvegs. Ta ein pause om du vil.</p>
+      <p>Assistenten forklarer instruksjonane for neste del.</p>
+    </div>`,
+    choices: ['Fortset →'],
+  };
+
+  const end = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<div style="max-width:500px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
+      <h2>Ferdig!</h2><p>Takk for deltakinga. Data vert no lasta ned.</p>
+    </div>`,
+    choices: ['Last ned data'],
+    on_finish: function() { downloadCSV(jsPsych, pid); }
+  };
+
+  // ── Kortversjon: 3 øvingstrial + pause + 3 ekte trial (director) ──
+  if (isKort) {
+    const pauseKort = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `<div style="max-width:580px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
+        <h2>Øving ferdig</h2>
+        <p>No kjem tre ekte oppgåver. Klikk for å starte.</p>
+      </div>`,
+      choices: ['Start ekte oppgåver →'],
+    };
+    const endKort = {
+      type: jsPsychHtmlButtonResponse,
+      stimulus: `<div style="max-width:500px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
+        <h2>Ferdig!</h2><p>Data vert no lasta ned.</p>
+      </div>`,
+      choices: ['Last ned data'],
+      on_finish: function() { downloadCSV(jsPsych, pid); }
+    };
+    // slice(0,4) = 1 preview + 3 trials (første blokk)
+    jsPsych.run([instrDir, ...dirPractice.slice(0, 4), pauseKort, ...dirTimeline.slice(0, 4), endKort]);
+    return;
+  }
+
+  const timeline = noDirectorFirst
+    ? [instrNoDir, ...noDirPractice, pause, instrDir,  ...dirPractice, ...dirTimeline, end]
+    : [instrDir,  ...dirPractice, ...dirTimeline, pause, instrNoDir, ...noDirPractice, ...noDirTimeline, end];
+
+  jsPsych.run(timeline);
+}
+</script>
+</body>
+</html>

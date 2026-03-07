@@ -1,0 +1,32 @@
+# Originale stimulifiler (store binærfiler)
+task-files/
+
+# Arkiv
+*.7z
+*.zip
+
+# Genererte objektutklipp
+output/
+
+# Deltakardata (personvern)
+experiment/data/
+
+# Interne arbeidsnotat
+*.org
+*.org~
+
+# Eldre prototypekodar
+poc-main.js
+
+# Vitskapleg artikkel (opphavsrett)
+perspective-taking.pdf
+
+# Referansebilete (ikkje del av eksperimentet)
+shelf.png
+shelf-and-director.png
+
+# Claude Code arbeidsminne
+.claude/
+
+# Diverse
+.DS_Store
