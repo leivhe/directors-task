@@ -191,11 +191,11 @@ function buildPracticeTimeline(useDirector, participantId, testVersion, jsPsychI
       wrong_answer: '?',
     };
     const trial = makeTrial(trialData, useDirector, false, participantId, testVersion, jsPsychInstance);
-    // Merk som øving slik at det ikkje kjem med i CSV
+    // Merk som øving i CSV
     const origFinish = trial.on_finish;
     trial.on_finish = function(data) {
       if (origFinish) origFinish(data);
-      data.is_trial = false;
+      data.is_practice = true;
     };
     timeline.push(trial);
   }
@@ -373,7 +373,7 @@ function buildConditionTimeline(trials, useDirector, participantId, testVersion,
 // Last ned CSV
 // ─────────────────────────────────────────────
 function downloadCSV(jsPsych, participantId) {
-  // Hent berre responsforsøk (ikkje preview, ikkje øving)
+  // Hent alle responsforsøk (inkl. øving, ekskl. preview)
   const data = jsPsych.data.get()
     .filter({ is_trial: true, is_preview: false });
 
@@ -389,7 +389,8 @@ function downloadCSV(jsPsych, participantId) {
   const keep = ['timeline_index','participant_id','test_version','condition',
                 'order_set','item_number','trial_type_num','trial_type_label',
                 'picture','instruction','soundfile','correct_answer',
-                'competitor_cell','cell_clicked','rt_from_audio','correct','chose_competitor'];
+                'competitor_cell','cell_clicked','rt_from_audio','correct','chose_competitor',
+                'is_practice'];
   const header = keep.join(',');
   const lines  = rows.map(r =>
     keep.map(k => JSON.stringify(r[k] ?? '')).join(',')
