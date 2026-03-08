@@ -19,7 +19,7 @@ experiment/
 ├── index.html          # Hele eksperimentet (én selvinneholdt fil)
 ├── setup.sh            # Engangsoppsett: konverterer BMP→PNG og kopierer WAV
 ├── js/
-│   └── trials_data.js  # Forsøksdata for alle 6 testvariantar
+│   └── trials_data.js  # Forsøksdata for alle 6 testvarianter
 ├── img/                # PNG-bilder av hyllescener (68 filer)
 ├── snd/                # WAV-lydinstruksjoner (108 filer)
 └── jspsych/            # jsPsych 7.3.4 (lokale filer, fungerer uten internett)
@@ -49,7 +49,7 @@ python3 -m http.server 8080
 
 ## Gjennomføring
 
-1. Forskningsassistenten fyller inn deltakar-ID og velger testversjon (1–6).
+1. Forskningsassistenten fyller inn deltaker-ID og velger testversjon (1–6).
 2. Deltakeren gjennomfører øvingsforsøk, så de to betingelsene (Director og No-Director) i rekkefølge bestemt av testversjonen.
 3. Etter siste forsøk klikker assistenten «Last ned data» – en CSV-fil lastes ned automatisk.
 
@@ -90,10 +90,10 @@ CSV-filen lagres som `director_[ID]_[dato]_[klokkeslett].csv` med én rad per fo
 
 | Verdi          | `trial_type_num` | Forklaring |
 |----------------|-----------------|------------|
-| `practice`     | −1              | Øvingsforsøk – lagra i CSV med `is_practice = true`, berre for opplæring og bør ekskluderast frå analysar |
-| `filler`       | 0               | Fyllerforsøk – ingen konkurranse mellom to objekt, brukt for å skjule eksperimentell struktur |
-| `control`      | 1               | Kontrollforsøk – berre éit relevant objekt er synleg, ingen perspektivkonflikt |
-| `experimental` | 2               | Eksperimentelle forsøk – eitt objekt synleg for begge, eitt berre for deltakaren (blokkert for direktøren); krev perspektivtaking for rett svar |
+| `practice`     | −1              | Øvingsforsøk – lagret i CSV med `is_practice = true`, bare for opplæring og bør ekskluderes fra analyser |
+| `filler`       | 0               | Fyllerforsøk – ingen konkurranse mellom to objekter, brukt for å skjule eksperimentell struktur |
+| `control`      | 1               | Kontrollforsøk – bare ett relevant objekt er synlig, ingen perspektivkonflikt |
+| `experimental` | 2               | Eksperimentelle forsøk – ett objekt synlig for begge, ett bare for deltakeren (blokkert for direktøren); krever perspektivtaking for riktig svar |
 
 ### Cellekoding
 

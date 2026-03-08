@@ -93,8 +93,8 @@
 <div id="start-screen">
   <div class="start-form">
     <h2>Director Task – oppstart</h2>
-    <label for="pid">Deltakar-ID:</label>
-    <input type="text" id="pid" placeholder="t.d. P001" autocomplete="off">
+    <label for="pid">Deltaker-ID:</label>
+    <input type="text" id="pid" placeholder="f.eks. P001" autocomplete="off">
     <label for="tver">Test-versjon (1–6):</label>
     <select id="tver">
       <option value="1">1</option><option value="2">2</option>
@@ -103,7 +103,7 @@
     </select>
     <label style="margin-top:18px;display:flex;align-items:center;gap:8px;font-weight:normal;">
       <input type="checkbox" id="kortversjon" style="width:auto;">
-      Kortversjon (3 øving + 3 ekte, berre for testing)
+      Kortversjon (3 øving + 3 ekte, bare for testing)
     </label>
     <div class="error" id="start-error"></div>
     <button onclick="startExperiment()">Start</button>
@@ -445,7 +445,7 @@ function startExperiment() {
   const tver = parseInt(document.getElementById('tver').value);
 
   if (!pid) {
-    document.getElementById('start-error').textContent = 'Skriv inn deltakar-ID.';
+    document.getElementById('start-error').textContent = 'Skriv inn deltaker-ID.';
     return;
   }
 
@@ -469,11 +469,11 @@ function startExperiment() {
   const instrDir = {
     type: jsPsychHtmlButtonResponse,
     stimulus: `<div style="max-width:680px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;line-height:1.6;">
-      <h2>Instruksjonar – Director-betinging</h2>
-      <p>Du vil sjå ei hylle med ulike objekt. Direktøren (mannen til høgre) ber deg flytte eit objekt til korga.</p>
-      <p><strong>Viktig:</strong> Direktøren kan ikkje sjå objekt i hyller med <strong>grå</strong> bakgrunn. Vel alltid objektet direktøren kan sjå.</p>
-      <p>Klikk på rett objekt så raskt og nøyaktig som mogleg.</p>
-      <p><em>Først skal vi ha ei prøverunde så du kan gjere deg kjend med oppgåva.</em></p>
+      <h2>Instruksjoner – Director-betingelse</h2>
+      <p>Du vil se en hylle med ulike objekter. Direktøren (mannen til høyre) ber deg flytte et objekt til kurven.</p>
+      <p><strong>Viktig:</strong> Direktøren kan ikke se objekter i hyller med <strong>grå</strong> bakgrunn. Velg alltid objektet direktøren kan se.</p>
+      <p>Klikk på riktig objekt så raskt og nøyaktig som mulig.</p>
+      <p><em>Først skal vi ha en prøverunde så du kan bli kjent med oppgaven.</em></p>
     </div>`,
     choices: ['Start prøverunde →'],
     ...disableButtonsBriefly(),
@@ -482,10 +482,10 @@ function startExperiment() {
   const instrNoDir = {
     type: jsPsychHtmlButtonResponse,
     stimulus: `<div style="max-width:680px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;line-height:1.6;">
-      <h2>Instruksjonar – No-Director-betinging</h2>
-      <p>No er det ingen direktør. Regel: Flytt alltid eit objekt frå ei hylle med <strong>blå</strong> bakgrunn. Ignorer objekt i hyller med grå bakgrunn.</p>
-      <p>Klikk på rett objekt så raskt og nøyaktig som mogleg.</p>
-      <p><em>Først skal vi ha ei prøverunde så du kan gjere deg kjend med denne delen.</em></p>
+      <h2>Instruksjoner – No-Director-betingelse</h2>
+      <p>Nå er det ingen direktør. Regel: Flytt alltid et objekt fra en hylle med <strong>blå</strong> bakgrunn. Ignorer objekter i hyller med grå bakgrunn.</p>
+      <p>Klikk på riktig objekt så raskt og nøyaktig som mulig.</p>
+      <p><em>Først skal vi ha en prøverunde så du kan bli kjent med denne delen.</em></p>
     </div>`,
     choices: ['Start prøverunde →'],
     ...disableButtonsBriefly(),
@@ -495,27 +495,27 @@ function startExperiment() {
     type: jsPsychHtmlButtonResponse,
     stimulus: `<div style="max-width:580px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
       <h2>Flott!</h2>
-      <p>No er øvinga ferdig og du er klar til å starte den ekte oppgåva.</p>
-      <p>Klikk for å halde fram.</p>
+      <p>Nå er øvingen ferdig og du er klar til å starte den ekte oppgaven.</p>
+      <p>Klikk for å fortsette.</p>
     </div>`,
-    choices: ['Start oppgåva →'],
+    choices: ['Start oppgaven →'],
     ...disableButtonsBriefly(),
   };
 
   const pause = {
     type: jsPsychHtmlButtonResponse,
     stimulus: `<div style="max-width:580px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
-      <h2>Pause</h2><p>Du er halvvegs. Ta ein pause om du vil.</p>
-      <p>Assistenten forklarer instruksjonane for neste del.</p>
+      <h2>Pause</h2><p>Du er halvveis. Ta en pause om du vil.</p>
+      <p>Assistenten forklarer instruksjonene for neste del.</p>
     </div>`,
-    choices: ['Fortset →'],
+    choices: ['Fortsett →'],
     ...disableButtonsBriefly(),
   };
 
   const end = {
     type: jsPsychHtmlButtonResponse,
     stimulus: `<div style="max-width:500px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
-      <h2>Ferdig!</h2><p>Takk for deltakinga. Data vert no lasta ned.</p>
+      <h2>Ferdig!</h2><p>Takk for deltakelsen. Data lastes nå ned.</p>
     </div>`,
     choices: ['Last ned data'],
     on_finish: function() { downloadCSV(jsPsych, pid); }
@@ -527,15 +527,15 @@ function startExperiment() {
       type: jsPsychHtmlButtonResponse,
       stimulus: `<div style="max-width:580px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
         <h2>Øving ferdig</h2>
-        <p>No kjem tre ekte oppgåver. Klikk for å starte.</p>
+        <p>Nå kommer tre ekte oppgaver. Klikk for å starte.</p>
       </div>`,
-      choices: ['Start ekte oppgåver →'],
+      choices: ['Start ekte oppgaver →'],
       ...disableButtonsBriefly(),
     };
     const endKort = {
       type: jsPsychHtmlButtonResponse,
       stimulus: `<div style="max-width:500px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
-        <h2>Ferdig!</h2><p>Data vert no lasta ned.</p>
+        <h2>Ferdig!</h2><p>Data lastes nå ned.</p>
       </div>`,
       choices: ['Last ned data'],
       on_finish: function() { downloadCSV(jsPsych, pid); }
