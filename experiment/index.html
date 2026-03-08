@@ -538,7 +538,7 @@ function startExperiment() {
   }
 
   const timeline = noDirectorFirst
-    ? [instrNoDir, ...noDirPractice, pause, instrDir,  ...dirPractice, ...dirTimeline, end]
+    ? [instrNoDir, ...noDirPractice, ...noDirTimeline, pause, instrDir,  ...dirPractice, ...dirTimeline, end]
     : [instrDir,  ...dirPractice, ...dirTimeline, pause, instrNoDir, ...noDirPractice, ...noDirTimeline, end];
 
   jsPsych.run(timeline);
