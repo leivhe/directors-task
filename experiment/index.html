@@ -138,6 +138,7 @@ const CELL_MAP = {
   I:'r2c0', J:'r2c1', K:'r2c2', L:'r2c3',
   M:'r3c0', N:'r3c1', O:'r3c2', P:'r3c3',
 };
+const CELL_MAP_INV = Object.fromEntries(Object.entries(CELL_MAP).map(([k,v]) => [v,k]));
 
 
 // ─────────────────────────────────────────────
@@ -342,7 +343,7 @@ function makeTrial(trialData, useDirector, isPreview, participantId, testVersion
 
         const rt = audioStartTime !== null
           ? Math.round(performance.now() - audioStartTime) : null;
-        const clickedCell = cell.dataset.cell;
+        const clickedCell = CELL_MAP_INV[cell.dataset.cell] || cell.dataset.cell;
         const correctCell = CELL_MAP[trialData.correct_answer] || null;
         const correct = correctCell !== null ? (clickedCell === correctCell ? 1 : 0) : null;
         const competitorCell = CELL_MAP[trialData.wrong_answer] || null;
