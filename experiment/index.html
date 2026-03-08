@@ -190,7 +190,7 @@ function buildPracticeTimeline(useDirector, participantId, testVersion, jsPsychI
       correct_answer: '?',
       wrong_answer: '?',
     };
-    const trial = makeTrial(trialData, useDirector, false, participantId, testVersion, jsPsychInstance);
+    const trial = makeTrial(trialData, useDirector, false, participantId, testVersion, jsPsychInstance, true);
     // Merk som øving i CSV
     const origFinish = trial.on_finish;
     trial.on_finish = function(data) {
@@ -249,7 +249,7 @@ function gridHtml() {
 // ─────────────────────────────────────────────
 // Lag eitt forsøk (bilete + lydinstruks + klikk)
 // ─────────────────────────────────────────────
-function makeTrial(trialData, useDirector, isPreview, participantId, testVersion, jsPsychInstance) {
+function makeTrial(trialData, useDirector, isPreview, participantId, testVersion, jsPsychInstance, isPractice = false) {
   const picFile = useDirector ? trialData.picture : trialData.picture_no_director;
   let trialAudio          = null;
   let trialDone           = false;
@@ -283,7 +283,7 @@ function makeTrial(trialData, useDirector, isPreview, participantId, testVersion
         <img id="trial-img" src="${imgPath(picFile)}" alt="shelf" draggable="false">
         <div id="grid-overlay">${gridHtml()}</div>
       </div>
-      ${isPreview ? '' : `<div id="instruction-box">${trialData.instruction}</div>`}
+      ${(!isPreview && isPractice) ? `<div id="instruction-box">${trialData.instruction}</div>` : ''}
     `,
     choices: 'NO_KEYS',
     // Preview: jsPsych-timer. Instruksjon: null – styrt av eigen setTimeout nedanfor
