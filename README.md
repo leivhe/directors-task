@@ -2,11 +2,15 @@
 
 Nettleserbasert implementasjon av [Keysar Director Task](https://sites.google.com/site/idcnlab/director-task) for måling av perspektivtaking. Bygget med [jsPsych 7.3.4](https://www.jspsych.org/).
 
+Implementasjonen er basert på opplegget brukt i følgende artikkel, og alle stimuliressurser (bilder og lydfiler) stammer derfra:
+
+> Tamnes, C. K., Overbye, K., Ferschmann, L., Fjell, A. M., Walhovd, K. B., Blakemore, S.-J., & Dumontheil, I. (2018). Social perspective taking is associated with self-reported prosocial behavior and regional cortical thickness across adolescence. *Developmental Psychology, 54*(9), 1745–1757. https://doi.org/10.1037/dev0000541
+
 ## Bakgrunn
 
 Director Task er et psykologisk eksperiment der deltakeren ser en hylle med objekter og en «direktør» som ber deltakeren flytte et bestemt objekt. Noen hylleceller er blokkert (grå bakgrunn) og usynlige for direktøren. I de kritiske forsøkene finnes det to objekter med samme beskrivelse – ett synlig og ett usynlig for direktøren. Deltakeren må ta direktørens perspektiv og velge riktig objekt.
 
-Eksperimentet er en forenklet versjon basert på Tamnes et al., der deltakeren klikker på ønsket objekt fremfor å dra det.
+Eksperimentet er en forenklet versjon basert på Tamnes et al. (2018), der deltakeren klikker på ønsket objekt fremfor å dra det.
 
 ## Struktur
 
