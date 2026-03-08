@@ -434,7 +434,8 @@ function downloadCSV(jsPsych, participantId) {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `director_${participantId}_${new Date().toISOString().slice(0,10)}.csv`;
+  const ts = new Date().toISOString().slice(0,19).replace('T','_').replace(/:/g,'');
+  a.download = `director_${participantId}_${ts}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
