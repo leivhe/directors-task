@@ -228,6 +228,18 @@ function groupIntoBlocks(trials) {
     .map(b => b.sort((a, b) => a.item_number - b.item_number));
 }
 
+// Deaktiver knappar kortvarig for å hindre klikk-blødning frå forrige trial
+function disableButtonsBriefly(ms = 500) {
+  return {
+    on_load: function() {
+      document.querySelectorAll('.jspsych-btn').forEach(btn => {
+        btn.disabled = true;
+        setTimeout(() => { btn.disabled = false; }, ms);
+      });
+    }
+  };
+}
+
 function gridHtml() {
   return CFG.cellIds.map(id =>
     `<div class="shelf-cell cell-${id}" data-cell="${id}"></div>`
@@ -467,6 +479,7 @@ function startExperiment() {
       <p>Klikk på rett objekt så raskt og nøyaktig som mogleg.</p>
     </div>`,
     choices: ['Start øving →'],
+    ...disableButtonsBriefly(),
   };
 
   const instrNoDir = {
@@ -477,6 +490,7 @@ function startExperiment() {
       <p>Klikk på rett objekt så raskt og nøyaktig som mogleg.</p>
     </div>`,
     choices: ['Start øving →'],
+    ...disableButtonsBriefly(),
   };
 
   const pause = {
@@ -486,6 +500,7 @@ function startExperiment() {
       <p>Assistenten forklarer instruksjonane for neste del.</p>
     </div>`,
     choices: ['Fortset →'],
+    ...disableButtonsBriefly(),
   };
 
   const end = {
@@ -506,6 +521,7 @@ function startExperiment() {
         <p>No kjem tre ekte oppgåver. Klikk for å starte.</p>
       </div>`,
       choices: ['Start ekte oppgåver →'],
+      ...disableButtonsBriefly(),
     };
     const endKort = {
       type: jsPsychHtmlButtonResponse,
