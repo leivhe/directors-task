@@ -280,7 +280,6 @@ function makeTrial(trialData, useDirector, isPreview, participantId, testVersion
         <img id="trial-img" src="${imgPath(picFile)}" alt="shelf" draggable="false">
         <div id="grid-overlay">${gridHtml()}</div>
       </div>
-      ${(!isPreview && isPractice) ? `<div id="instruction-box">${trialData.instruction}</div>` : ''}
     `,
     choices: 'NO_KEYS',
     // Preview: jsPsych-timer. Instruksjon: null – styrt av eigen setTimeout nedanfor
@@ -474,8 +473,9 @@ function startExperiment() {
       <p>Du vil sjå ei hylle med ulike objekt. Direktøren (mannen til høgre) ber deg flytte eit objekt til korga.</p>
       <p><strong>Viktig:</strong> Direktøren kan ikkje sjå objekt i hyller med <strong>grå</strong> bakgrunn. Vel alltid objektet direktøren kan sjå.</p>
       <p>Klikk på rett objekt så raskt og nøyaktig som mogleg.</p>
+      <p><em>Først skal vi ha ei prøverunde så du kan gjere deg kjend med oppgåva.</em></p>
     </div>`,
-    choices: ['Start øving →'],
+    choices: ['Start prøverunde →'],
     ...disableButtonsBriefly(),
   };
 
@@ -485,8 +485,20 @@ function startExperiment() {
       <h2>Instruksjonar – No-Director-betinging</h2>
       <p>No er det ingen direktør. Regel: Flytt alltid eit objekt frå ei hylle med <strong>blå</strong> bakgrunn. Ignorer objekt i hyller med grå bakgrunn.</p>
       <p>Klikk på rett objekt så raskt og nøyaktig som mogleg.</p>
+      <p><em>Først skal vi ha ei prøverunde så du kan gjere deg kjend med denne delen.</em></p>
     </div>`,
-    choices: ['Start øving →'],
+    choices: ['Start prøverunde →'],
+    ...disableButtonsBriefly(),
+  };
+
+  const practiceEnd = {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `<div style="max-width:580px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
+      <h2>Flott!</h2>
+      <p>No er øvinga ferdig og du er klar til å starte den ekte oppgåva.</p>
+      <p>Klikk for å halde fram.</p>
+    </div>`,
+    choices: ['Start oppgåva →'],
     ...disableButtonsBriefly(),
   };
 
@@ -533,7 +545,7 @@ function startExperiment() {
     return;
   }
 
-  const timeline = [instrDir, ...dirPractice, ...dirTimeline, pause, instrNoDir, ...noDirPractice, ...noDirTimeline, end];
+  const timeline = [instrDir, ...dirPractice, practiceEnd, ...dirTimeline, pause, instrNoDir, ...noDirPractice, practiceEnd, ...noDirTimeline, end];
 
   jsPsych.run(timeline);
 }
