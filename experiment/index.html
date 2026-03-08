@@ -239,8 +239,30 @@ function gridHtml() {
 // ─────────────────────────────────────────────
 function makeTrial(trialData, useDirector, isPreview, participantId, testVersion, jsPsychInstance) {
   const picFile = useDirector ? trialData.picture : trialData.picture_no_director;
-  let trialAudio = null;
-  let trialDone  = false;
+  let trialAudio          = null;
+  let trialDone           = false;
+  let audioEnded          = false;
+  let pendingResponseData = null;
+  let ownTimeoutHandle    = null;
+
+  // Felles metadata-objekt (same felt i alle finishTrial-kall)
+  const baseMeta = () => ({
+    participant_id:   participantId,
+    test_version:     testVersion,
+    condition:        useDirector ? 'director' : 'no_director',
+    order_set:        trialData.order_set,
+    item_number:      trialData.item_number,
+    trial_type_num:   trialData.trial_type,
+    trial_type_label: trialData.type,
+    picture:          picFile,
+    instruction:      trialData.instruction,
+    soundfile:        trialData.soundfile,
+    correct_answer:   trialData.correct_answer,
+    competitor_cell:  trialData.wrong_answer,
+    is_preview:       false,
+    is_trial:         true,
+    is_practice:      false,
+  });
 
   return {
     type: jsPsychHtmlKeyboardResponse,
@@ -252,17 +274,50 @@ function makeTrial(trialData, useDirector, isPreview, participantId, testVersion
       ${isPreview ? '' : `<div id="instruction-box">${trialData.instruction}</div>`}
     `,
     choices: 'NO_KEYS',
-    trial_duration: isPreview ? CFG.previewDuration : CFG.maxTrialDuration,
+    // Preview: jsPsych-timer. Instruksjon: null – styrt av eigen setTimeout nedanfor
+    trial_duration: isPreview ? CFG.previewDuration : null,
     response_ends_trial: false,
 
     on_load: function() {
       if (isPreview) return;
 
+      const t0 = performance.now();
+      console.log(`[START] ${trialData.soundfile}`);
       let audioStartTime = null;
       const audio = new Audio(sndPath(trialData.soundfile));
       trialAudio = audio;
-      audio.addEventListener('play', () => { audioStartTime = performance.now(); });
-      audio.play().catch(() => {});
+
+      audio.addEventListener('play', () => {
+        audioStartTime = performance.now();
+        console.log(`[AUDIO PLAY] ${trialData.soundfile} t+${Math.round(audioStartTime - t0)}ms`);
+      });
+
+      audio.addEventListener('ended', () => {
+        audioEnded = true;
+        const dur = audioStartTime ? Math.round(performance.now() - audioStartTime) : '?';
+        console.log(`[AUDIO ENDED] ${trialData.soundfile} dur=${dur}ms`);
+        if (pendingResponseData && !trialDone) {
+          console.log(`[FINISH after audio] ${trialData.soundfile}`);
+          jsPsychInstance.finishTrial(pendingResponseData);
+        }
+      });
+
+      audio.play().catch(err => console.warn(`[AUDIO ERROR] ${trialData.soundfile}`, err));
+
+      // Eigen makstids-timer (erstattar jsPsych sin trial_duration for instruksjonstrials)
+      ownTimeoutHandle = setTimeout(() => {
+        if (trialDone) return;
+        console.log(`[TIMEOUT] ${trialData.soundfile}`);
+        if (trialAudio) { trialAudio.pause(); trialAudio = null; }
+        pendingResponseData = null;
+        jsPsychInstance.finishTrial({
+          ...baseMeta(),
+          cell_clicked:     null,
+          rt_from_audio:    null,
+          correct:          null,
+          chose_competitor: null,
+        });
+      }, CFG.maxTrialDuration);
 
       const overlay = document.getElementById('grid-overlay');
       overlay.style.pointerEvents = 'auto';
@@ -271,6 +326,7 @@ function makeTrial(trialData, useDirector, isPreview, participantId, testVersion
       overlay.addEventListener('click', function handler(e) {
         const cell = e.target.closest('.shelf-cell');
         if (!cell) return;
+        e.stopPropagation();
         overlay.removeEventListener('click', handler);
         overlay.style.pointerEvents = 'none';
         overlay.querySelectorAll('.shelf-cell').forEach(c => c.classList.remove('active'));
@@ -278,7 +334,6 @@ function makeTrial(trialData, useDirector, isPreview, participantId, testVersion
 
         const rt = audioStartTime !== null
           ? Math.round(performance.now() - audioStartTime) : null;
-
         const clickedCell = cell.dataset.cell;
         const correctCell = CELL_MAP[trialData.correct_answer] || null;
         const correct = correctCell !== null ? (clickedCell === correctCell ? 1 : 0) : null;
@@ -286,68 +341,35 @@ function makeTrial(trialData, useDirector, isPreview, participantId, testVersion
         const chose_competitor = (trialData.trial_type === 2 && correct === 0 && competitorCell !== null)
           ? (clickedCell === competitorCell ? 1 : 0) : null;
 
+        console.log(`[CLICK] ${trialData.soundfile} cell=${clickedCell} rt=${rt}ms audioEnded=${audioEnded}`);
+
         const responseData = {
-          participant_id:  participantId,
-          test_version:    testVersion,
-          condition:       useDirector ? 'director' : 'no_director',
-          order_set:       trialData.order_set,
-          item_number:     trialData.item_number,
-          trial_type_num:  trialData.trial_type,
-          trial_type_label:trialData.type,
-          picture:         picFile,
-          instruction:     trialData.instruction,
-          soundfile:       trialData.soundfile,
-          correct_answer:  trialData.correct_answer,
-          competitor_cell: trialData.wrong_answer,
-          cell_clicked:    clickedCell,
-          rt_from_audio:   rt,
+          ...baseMeta(),
+          cell_clicked:     clickedCell,
+          rt_from_audio:    rt,
           correct:          correct,
           chose_competitor: chose_competitor,
-          is_preview:       false,
-          is_trial:         true,
         };
 
-        // Vent til lydfila er ferdig naturleg før vi går vidare
-        const finishAfterAudio = () => {
+        if (audioEnded) {
+          console.log(`[FINISH immediate] ${trialData.soundfile}`);
           if (!trialDone) jsPsychInstance.finishTrial(responseData);
-        };
-        if (audio.ended || audio.paused) {
-          finishAfterAudio();
         } else {
-          audio.addEventListener('ended', finishAfterAudio, { once: true });
+          pendingResponseData = responseData;
         }
       });
     },
 
     on_finish: function(data) {
       trialDone = true;
-      // Stopp lyd berre ved timeout (ved klikk spelar lyden ferdig naturleg)
-      if (trialAudio && !data.is_trial) {
-        trialAudio.pause();
-        trialAudio = null;
-      }
-      // Preview eller timeout
-      if (!data.is_trial) {
-        Object.assign(data, {
-          is_preview:      isPreview,
-          participant_id:  participantId,
-          test_version:    testVersion,
-          condition:       useDirector ? 'director' : 'no_director',
-          order_set:       trialData.order_set,
-          item_number:     trialData.item_number,
-          trial_type_num:  trialData.trial_type,
-          trial_type_label:trialData.type,
-          picture:         picFile,
-          instruction:     trialData.instruction,
-          soundfile:       trialData.soundfile,
-          correct_answer:  trialData.correct_answer,
-          competitor_cell: trialData.wrong_answer,
-          cell_clicked:    null,
-          rt_from_audio:   null,
-          correct:          null,
-          chose_competitor: null,
-          is_trial:         !isPreview,
-        });
+      if (ownTimeoutHandle) { clearTimeout(ownTimeoutHandle); ownTimeoutHandle = null; }
+      pendingResponseData = null;
+      if (trialAudio) { trialAudio.pause(); trialAudio = null; }
+      console.log(`[ON_FINISH] ${trialData.soundfile} is_trial=${data.is_trial} is_preview=${isPreview}`);
+      // For preview: jsPsych-timer fyr, data er tom – merk eksplisitt
+      if (isPreview) {
+        data.is_trial   = false;
+        data.is_preview = true;
       }
     }
   };
