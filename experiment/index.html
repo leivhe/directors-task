@@ -343,11 +343,11 @@ function makeTrial(trialData, useDirector, isPreview, participantId, testVersion
         const rt = audioStartTime !== null
           ? Math.round(performance.now() - audioStartTime) : null;
         const clickedCell = CELL_MAP_INV[cell.dataset.cell] || cell.dataset.cell;
-        const correctCell = CELL_MAP[trialData.correct_answer] || null;
-        const correct = correctCell !== null ? (clickedCell === correctCell ? 1 : 0) : null;
-        const competitorCell = CELL_MAP[trialData.wrong_answer] || null;
-        const chose_competitor = (trialData.trial_type === 2 && correct === 0 && competitorCell !== null)
-          ? (clickedCell === competitorCell ? 1 : 0) : null;
+        const hasCorrect = trialData.correct_answer && trialData.correct_answer !== '?';
+        const correct = hasCorrect ? (clickedCell === trialData.correct_answer ? 1 : 0) : null;
+        const hasCompetitor = trialData.wrong_answer && trialData.wrong_answer !== '?';
+        const chose_competitor = (trialData.trial_type === 2 && correct === 0 && hasCompetitor)
+          ? (clickedCell === trialData.wrong_answer ? 1 : 0) : null;
 
         console.log(`[CLICK] ${trialData.soundfile} cell=${clickedCell} rt=${rt}ms audioEnded=${audioEnded}`);
 
