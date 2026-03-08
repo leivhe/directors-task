@@ -51,10 +51,7 @@ python3 -m http.server 8080
 
 ### Testversjoner
 
-| Versjon | Rekkefølge         |
-|---------|--------------------|
-| 1–3     | Director først     |
-| 4–6     | No-Director først  |
+Alle versjoner kjører director-betingingen først, deretter no-director. Testversjonene (1–6) varierer kun rekkefølgen på forsøksblokkene innen hver betinging.
 
 ### Kortversjon (kun for testing)
 
@@ -62,7 +59,7 @@ Kryss av «Kortversjon» på startsiden for å kjøre 3 øvingsforsøk + 3 ekte 
 
 ## Dataformat
 
-CSV-filen lagres som `director_[ID]_[dato].csv` med én rad per forsøk:
+CSV-filen lagres som `director_[ID]_[dato]_[klokkeslett].csv` med én rad per forsøk:
 
 | Kolonne           | Innhold                                              |
 |-------------------|------------------------------------------------------|
@@ -72,27 +69,37 @@ CSV-filen lagres som `director_[ID]_[dato].csv` med én rad per forsøk:
 | `condition`       | `director` eller `no_director`                       |
 | `order_set`       | Blokknummer (1–16)                                   |
 | `item_number`     | Forsøksnummer innen blokk (1–3)                      |
-| `trial_type_num`  | 0 = filler, 1 = kontroll, 2 = eksperimentell         |
-| `trial_type_label`| `filler`, `control` eller `experimental`             |
+| `trial_type_num`  | −1 = øving, 0 = filler, 1 = kontroll, 2 = eksperimentell |
+| `trial_type_label`| `practice`, `filler`, `control` eller `experimental` |
 | `picture`         | Bildefil                                             |
 | `instruction`     | Tekstlig instruksjon                                 |
 | `soundfile`       | Lydfil                                               |
 | `correct_answer`  | Riktig celle (bokstav A–P)                           |
 | `competitor_cell` | Konkurrerende celle (kun eksperimentelle forsøk)     |
-| `cell_clicked`    | Cellen deltakeren klikket (f.eks. `r2c1`)            |
+| `cell_clicked`    | Cellen deltakeren klikket (bokstav A–P)              |
 | `rt_from_audio`   | Reaksjonstid fra lydstart i millisekunder            |
 | `correct`         | 1 = riktig, 0 = feil, tom = ingen respons            |
 | `chose_competitor`| 1/0 hvis feil eksperimentelt svar; ellers tom        |
+| `is_practice`     | `true` for øvingsforsøk, `false` for ekte forsøk    |
+
+### Forsøkstypar (`trial_type_label`)
+
+| Verdi          | `trial_type_num` | Forklaring |
+|----------------|-----------------|------------|
+| `practice`     | −1              | Øvingsforsøk – lagra i CSV med `is_practice = true`, berre for opplæring og bør ekskluderast frå analysar |
+| `filler`       | 0               | Fyllerforsøk – ingen konkurranse mellom to objekt, brukt for å skjule eksperimentell struktur |
+| `control`      | 1               | Kontrollforsøk – berre éit relevant objekt er synleg, ingen perspektivkonflikt |
+| `experimental` | 2               | Eksperimentelle forsøk – eitt objekt synleg for begge, eitt berre for deltakaren (blokkert for direktøren); krev perspektivtaking for rett svar |
 
 ### Cellekoding
 
-Cellene i 4×4-hyllen er kodet som `rXcY` (rad × kolonne, 0-indeksert fra øverst til venstre) og som bokstaver A–P i `correct_answer`/`competitor_cell`:
+Cellene i 4×4-hyllen er kodet som bokstaver A–P:
 
 ```
-A(r0c0)  B(r0c1)  C(r0c2)  D(r0c3)
-E(r1c0)  F(r1c1)  G(r1c2)  H(r1c3)
-I(r2c0)  J(r2c1)  K(r2c2)  L(r2c3)
-M(r3c0)  N(r3c1)  O(r3c2)  P(r3c3)
+A  B  C  D
+E  F  G  H
+I  J  K  L
+M  N  O  P
 ```
 
 ## Tekniske merknader
