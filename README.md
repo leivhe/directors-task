@@ -25,13 +25,15 @@ experiment/
 └── jspsych/            # jsPsych 7.3.4 (lokale filer, fungerer uten internett)
 ```
 
-## Oppsett
+## Oppsett og kjøring (Windows)
 
-Bildene og lydfilene er allerede inkludert i repoet (`img/` og `snd/`), så ingen forbehandling er nødvendig etter kloning.
+1. Last ned repoet som ZIP (knappen **Code → Download ZIP** på GitHub) og pakk ut.
+2. Installer Python fra organisasjonens installasjonsside hvis du ikke har det fra før.
+3. Dobbelklikk `experiment/start.bat`.
 
-`setup.sh` er kun nødvendig hvis du sitter med de originale BMP/WAV-filene i `task-files/` og ønsker å regenerere mediefilene fra kilde. Det krever [ImageMagick](https://imagemagick.org/).
+Nettleseren åpner seg automatisk. Lukk kommandovinduet for å stoppe eksperimentet.
 
-## Kjøre eksperimentet
+## Kjøre eksperimentet (andre plattformer)
 
 Start en lokal webserver fra `experiment/`-mappen:
 
@@ -41,6 +43,10 @@ python3 -m http.server 8080
 ```
 
 Åpne deretter `http://localhost:8080` i nettleseren.
+
+## Regenerere mediefiler fra kilde
+
+`setup.sh` er kun nødvendig hvis du sitter med de originale BMP/WAV-filene i `task-files/` og ønsker å regenerere mediefilene. Det krever [ImageMagick](https://imagemagick.org/). Bildene og lydfilene er ellers allerede inkludert i repoet.
 
 ## Gjennomføring
 
