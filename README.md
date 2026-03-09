@@ -27,14 +27,9 @@ experiment/
 
 ## Oppsett
 
-Kjør `setup.sh` én gang for å konvertere originalbildene (BMP) og lydfilene (WAV) til riktig mappe. Krever [ImageMagick](https://imagemagick.org/).
+Bildene og lydfilene er allerede inkludert i repoet (`img/` og `snd/`), så ingen forbehandling er nødvendig etter kloning.
 
-```bash
-cd experiment
-bash setup.sh
-```
-
-Hvis originalfilene allerede er konvertert (mappen `img/` og `snd/` er fylt), kan dette steget hoppes over.
+`setup.sh` er kun nødvendig hvis du sitter med de originale BMP/WAV-filene i `task-files/` og ønsker å regenerere mediefilene fra kilde. Det krever [ImageMagick](https://imagemagick.org/).
 
 ## Kjøre eksperimentet
 
