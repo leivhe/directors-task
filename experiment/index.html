@@ -579,10 +579,11 @@ function startExperiment() {
 
 // Escape-tast for å avbryte
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
+  if (e.key === 'Escape' || e.key === 'F2') {
+    e.stopPropagation();
     document.getElementById('escape-overlay').classList.add('visible');
   }
-});
+}, true);
 </script>
 </body>
 </html>
