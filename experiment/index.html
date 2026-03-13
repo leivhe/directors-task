@@ -462,6 +462,19 @@ function downloadCSV(jsPsych, participantId) {
   document.body.removeChild(a);
 }
 
+function downloadAndClose(jsPsych, participantId) {
+  downloadCSV(jsPsych, participantId);
+  setTimeout(function() {
+    if (!window.close()) {
+      document.getElementById('jspsych-content') && (document.getElementById('jspsych-content').innerHTML = '');
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Arial;">'
+        + '<div style="background:white;padding:40px;border-radius:8px;text-align:center;">'
+        + '<h2>Data er lastet ned!</h2><p>Trykk <strong>Alt+F4</strong> for å avslutte.</p>'
+        + '</div></div>';
+    }
+  }, 500);
+}
+
 // ─────────────────────────────────────────────
 // Start eksperimentet (kallast frå Start-knappen)
 // ─────────────────────────────────────────────
@@ -542,9 +555,9 @@ function startExperiment() {
     stimulus: `<div style="max-width:500px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
       <h2>Ferdig!</h2><p>Takk for innsatsen. Trykk på knappen for å laste ned data.</p>
     </div>`,
-    choices: ['Trykk her for å laste ned data'],
+    choices: ['Trykk her for å laste ned data og avslutte'],
     button_html: '<button class="jspsych-btn" style="background:#c0392b;color:white;font-size:18px;padding:12px 24px;">%choice%</button>',
-    on_finish: function() { downloadCSV(jsPsych, pid); }
+    on_finish: function() { downloadAndClose(jsPsych, pid); }
   };
 
   // ── Kortversjon: 3 øvingstrial + pause + 3 ekte trial (director) ──
@@ -563,9 +576,9 @@ function startExperiment() {
       stimulus: `<div style="max-width:500px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
         <h2>Prøverunde ferdig!</h2>
       </div>`,
-      choices: ['Trykk her for å laste ned data'],
+      choices: ['Trykk her for å laste ned data og avslutte'],
       button_html: '<button class="jspsych-btn" style="background:#c0392b;color:white;font-size:18px;padding:12px 24px;">%choice%</button>',
-      on_finish: function() { downloadCSV(jsPsych, pid); }
+      on_finish: function() { downloadAndClose(jsPsych, pid); }
     };
     // slice(0,4) = 1 preview + 3 trials (første blokk)
     jsPsych.run([instrDir, ...dirPractice.slice(0, 4), pauseKort, ...dirTimeline.slice(0, 4), endKort]);
