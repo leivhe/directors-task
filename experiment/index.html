@@ -85,9 +85,33 @@
       font-family: Arial, sans-serif; text-align: center;
       border-radius: 0 0 6px 6px; min-height: 2.2em;
     }
+  #escape-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85); z-index: 9999;
+    align-items: center; justify-content: center;
+  }
+  #escape-overlay.visible { display: flex; }
+  #escape-box {
+    background: white; padding: 32px 40px; border-radius: 8px;
+    font-family: Arial, sans-serif; text-align: center; max-width: 400px;
+  }
+  #escape-box h2 { margin-top: 0; }
+  #escape-box button {
+    margin-top: 16px; padding: 10px 24px; font-size: 16px;
+    background: #c0392b; color: white; border: none;
+    border-radius: 4px; cursor: pointer;
+  }
   </style>
 </head>
 <body>
+
+<div id="escape-overlay">
+  <div id="escape-box">
+    <h2>Avslutte eksperimentet?</h2>
+    <p>Er du sikker på at du vil avbryte? Trykk <strong>Alt+F4</strong> for å lukke nettlesaren.</p>
+    <button onclick="document.getElementById('escape-overlay').classList.remove('visible')" style="background:#555;">Nei, fortsett</button>
+  </div>
+</div>
 
 <!-- Startsida (vises før jsPsych startar) -->
 <div id="start-screen">
@@ -551,6 +575,13 @@ function startExperiment() {
 
   jsPsych.run(timeline);
 }
+
+// Escape-tast for å avbryte
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.getElementById('escape-overlay').classList.add('visible');
+  }
+});
 </script>
 </body>
 </html>
