@@ -469,10 +469,10 @@ function startExperiment() {
   const instrDir = {
     type: jsPsychHtmlButtonResponse,
     stimulus: `<div style="max-width:680px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;line-height:1.6;">
-      <h2>Instruksjoner – Director-betingelse</h2>
-      <p>Du vil se en hylle med ulike objekter. Direktøren (mannen til høyre) ber deg flytte et objekt til kurven.</p>
-      <p><strong>Viktig:</strong> Direktøren kan ikke se objekter i hyller med <strong>grå</strong> bakgrunn. Velg alltid objektet direktøren kan se.</p>
-      <p>Klikk på riktig objekt så raskt og nøyaktig som mulig.</p>
+      <h2>Instruksjoner for første del</h2>
+      <p>Du vil se en hylle med ulike ting. </br>Direktøren (mannen til høyre) ber deg flytte en av disse til kurven.</p>
+      <p><strong>Viktig:</strong> Direktøren kan ikke se alt som du kan se.</br>Velg alltid ting direktøren kan se.</p>
+      <p>Klikk på riktig gjenstand så raskt og nøyaktig som mulig.</p>
       <p><em>Først skal vi ha en prøverunde så du kan bli kjent med oppgaven.</em></p>
     </div>`,
     choices: ['Start prøverunde →'],
@@ -482,8 +482,8 @@ function startExperiment() {
   const instrNoDir = {
     type: jsPsychHtmlButtonResponse,
     stimulus: `<div style="max-width:680px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;line-height:1.6;">
-      <h2>Instruksjoner – No-Director-betingelse</h2>
-      <p>Nå er det ingen direktør. Regel: Flytt alltid et objekt fra en hylle med <strong>blå</strong> bakgrunn. Ignorer objekter i hyller med grå bakgrunn.</p>
+      <h2>Instruksjoner for siste del</h2>
+      <p>Nå er det ingen direktør. Regel: Flytt alltid ting fra en åpen hylle (blå bakgrunn). Ikke flytt ting fra hyller med <strong>grå</strong> bakgrunn.</p>
       <p>Klikk på riktig objekt så raskt og nøyaktig som mulig.</p>
       <p><em>Først skal vi ha en prøverunde så du kan bli kjent med denne delen.</em></p>
     </div>`,
@@ -515,9 +515,10 @@ function startExperiment() {
   const end = {
     type: jsPsychHtmlButtonResponse,
     stimulus: `<div style="max-width:500px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
-      <h2>Ferdig!</h2><p>Takk for deltakelsen. Data lastes nå ned.</p>
+      <h2>Ferdig!</h2><p>Takk for innsatsen. Trykk på knappen for å laste ned data.</p>
     </div>`,
-    choices: ['Last ned data'],
+    choices: ['Trykk her for å laste ned data'],
+    button_html: '<button class="jspsych-btn" style="background:#c0392b;color:white;font-size:18px;padding:12px 24px;">%choice%</button>',
     on_finish: function() { downloadCSV(jsPsych, pid); }
   };
 
@@ -535,9 +536,10 @@ function startExperiment() {
     const endKort = {
       type: jsPsychHtmlButtonResponse,
       stimulus: `<div style="max-width:500px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
-        <h2>Ferdig!</h2><p>Data lastes nå ned.</p>
+        <h2>Prøverunde ferdig!</h2>
       </div>`,
-      choices: ['Last ned data'],
+      choices: ['Trykk her for å laste ned data'],
+      button_html: '<button class="jspsych-btn" style="background:#c0392b;color:white;font-size:18px;padding:12px 24px;">%choice%</button>',
       on_finish: function() { downloadCSV(jsPsych, pid); }
     };
     // slice(0,4) = 1 preview + 3 trials (første blokk)
