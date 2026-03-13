@@ -12,6 +12,10 @@ if errorlevel 1 (
 echo Starter eksperimentet...
 start /b python -m http.server 8080
 timeout /t 2 /nobreak >nul
-start "" http://localhost:8080
+if exist "C:\Program Files\Microsoft\Edge\Application\msedge.exe" (
+    "C:\Program Files\Microsoft\Edge\Application\msedge.exe" --kiosk http://localhost:8080 --edge-kiosk-type=fullscreen --no-first-run
+) else (
+    "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --kiosk http://localhost:8080 --edge-kiosk-type=fullscreen --no-first-run
+)
 echo Trykk Ctrl+C for å stoppe serveren.
 pause >nul
