@@ -17,5 +17,7 @@ if exist "C:\Program Files\Microsoft\Edge\Application\msedge.exe" (
 ) else (
     "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --kiosk http://localhost:8080 --edge-kiosk-type=fullscreen --no-first-run
 )
-echo Trykk Ctrl+C for å stoppe serveren.
-pause >nul
+echo Avslutter server...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr "0.0.0.0:8080"') do taskkill /f /pid %%a >nul 2>&1
+echo Ferdig.
+timeout /t 2 /nobreak >nul
