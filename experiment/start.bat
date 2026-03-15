@@ -13,9 +13,9 @@ echo Starter eksperimentet...
 start /b python -m http.server 8080
 timeout /t 2 /nobreak >nul
 if exist "C:\Program Files\Microsoft\Edge\Application\msedge.exe" (
-    "C:\Program Files\Microsoft\Edge\Application\msedge.exe" --kiosk http://localhost:8080 --edge-kiosk-type=fullscreen --no-first-run
+    "C:\Program Files\Microsoft\Edge\Application\msedge.exe" --start-fullscreen http://localhost:8080 --no-first-run
 ) else (
-    "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --kiosk http://localhost:8080 --edge-kiosk-type=fullscreen --no-first-run
+    "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --start-fullscreen http://localhost:8080  --no-first-run
 )
 echo Avslutter server...
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr "0.0.0.0:8080"') do taskkill /f /pid %%a >nul 2>&1
