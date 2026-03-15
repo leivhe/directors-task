@@ -508,49 +508,48 @@ function startExperiment() {
   const noDirTimeline = buildConditionTimeline(trials, false, pid, tver, jsPsych);
 
   const instrDir = {
-    type: jsPsychHtmlButtonResponse,
+    type: jsPsychHtmlKeyboardResponse,
     stimulus: `<div style="max-width:680px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;line-height:1.6;">
       <h2>Instruksjoner for første del</h2>
       <p>Du vil se en hylle med ulike ting. </br>Direktøren (mannen til høyre) ber deg flytte en av disse til kurven.</p>
       <p><strong>Viktig:</strong> Direktøren kan ikke se alt som du kan se.</br>Velg alltid ting direktøren kan se.</p>
       <p>Klikk på riktig gjenstand så raskt og nøyaktig som mulig.</p>
       <p><em>Først skal vi ha en prøverunde så du kan bli kjent med oppgaven.</em></p>
+      <p style="margin-top:24px;color:#555;">Trykk <strong>mellomrom</strong> for å starte prøverunden.</p>
     </div>`,
-    choices: ['Start prøverunde →'],
-    ...disableButtonsBriefly(),
+    choices: [' '],
   };
 
   const instrNoDir = {
-    type: jsPsychHtmlButtonResponse,
+    type: jsPsychHtmlKeyboardResponse,
     stimulus: `<div style="max-width:680px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;line-height:1.6;">
       <h2>Instruksjoner for siste del</h2>
       <p>Nå er det ingen direktør. Regel: Flytt alltid ting fra en åpen hylle (blå bakgrunn). Ikke flytt ting fra hyller med <strong>grå</strong> bakgrunn.</p>
       <p>Klikk på riktig objekt så raskt og nøyaktig som mulig.</p>
       <p><em>Først skal vi ha en prøverunde så du kan bli kjent med denne delen.</em></p>
+      <p style="margin-top:24px;color:#555;">Trykk <strong>mellomrom</strong> for å starte prøverunden.</p>
     </div>`,
-    choices: ['Start prøverunde →'],
-    ...disableButtonsBriefly(),
+    choices: [' '],
   };
 
   const practiceEnd = {
-    type: jsPsychHtmlButtonResponse,
+    type: jsPsychHtmlKeyboardResponse,
     stimulus: `<div style="max-width:580px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
       <h2>Flott!</h2>
       <p>Nå er øvingen ferdig og du er klar til å starte den ekte oppgaven.</p>
-      <p>Klikk for å fortsette.</p>
+      <p style="color:#555;">Trykk <strong>mellomrom</strong> for å fortsette.</p>
     </div>`,
-    choices: ['Start oppgaven →'],
-    ...disableButtonsBriefly(),
+    choices: [' '],
   };
 
   const pause = {
-    type: jsPsychHtmlButtonResponse,
+    type: jsPsychHtmlKeyboardResponse,
     stimulus: `<div style="max-width:580px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
       <h2>Pause</h2><p>Du er halvveis. Ta en pause om du vil.</p>
       <p>Assistenten forklarer instruksjonene for neste del.</p>
+      <p style="color:#555;">Trykk <strong>mellomrom</strong> for å fortsette.</p>
     </div>`,
-    choices: ['Fortsett →'],
-    ...disableButtonsBriefly(),
+    choices: [' '],
   };
 
   const end = {
@@ -566,13 +565,13 @@ function startExperiment() {
   // ── Kortversjon: 3 øvingstrial + pause + 3 ekte trial (director) ──
   if (isKort) {
     const pauseKort = {
-      type: jsPsychHtmlButtonResponse,
+      type: jsPsychHtmlKeyboardResponse,
       stimulus: `<div style="max-width:580px;margin:0 auto;background:white;padding:28px;border-radius:8px;font-family:Arial;text-align:center;">
         <h2>Øving ferdig</h2>
-        <p>Nå kommer tre ekte oppgaver. Klikk for å starte.</p>
+        <p>Nå kommer tre ekte oppgaver.</p>
+        <p style="color:#555;">Trykk <strong>mellomrom</strong> for å starte.</p>
       </div>`,
-      choices: ['Start ekte oppgaver →'],
-      ...disableButtonsBriefly(),
+      choices: [' '],
     };
     const endKort = {
       type: jsPsychHtmlButtonResponse,
