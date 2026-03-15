@@ -460,19 +460,21 @@ function downloadCSV(jsPsych, participantId) {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+  // Frigjer blob-URL etter at nettlesaren har rukke å starte nedlastinga
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
 function downloadAndClose(jsPsych, participantId) {
   downloadCSV(jsPsych, participantId);
+  // Vis ferdig-melding etter at nedlasting er starta; prøv ikkje window.close()
+  // (window.close() triggar "filen lastes ned"-dialog i Edge/Chrome på Windows)
   setTimeout(function() {
-    if (!window.close()) {
-      document.getElementById('jspsych-content') && (document.getElementById('jspsych-content').innerHTML = '');
-      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Arial;">'
-        + '<div style="background:white;padding:40px;border-radius:8px;text-align:center;">'
-        + '<h2>Har du husket å lagre dataene?</h2><p>Trykk <strong>Alt+F4</strong> for å avslutte.</p>'
-        + '</div></div>';
-    }
-  }, 500);
+    document.getElementById('jspsych-content') && (document.getElementById('jspsych-content').innerHTML = '');
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Arial;">'
+      + '<div style="background:white;padding:40px;border-radius:8px;text-align:center;">'
+      + '<h2>Har du husket å lagre dataene?</h2><p>Trykk <strong>Alt+F4</strong> for å avslutte.</p>'
+      + '</div></div>';
+  }, 1000);
 }
 
 // ─────────────────────────────────────────────
