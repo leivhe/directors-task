@@ -455,7 +455,7 @@ function downloadCSV(jsPsych, participantId) {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  const ts = new Date().toISOString().slice(0,19).replace('T','_').replace(/:/g,'');
+  const ts = new Date().toLocaleString('sv', {timeZone:'Europe/Oslo'}).replace(' ','_').replace(/:/g,'');
   a.download = `director_${participantId}_${ts}.csv`;
   document.body.appendChild(a);
   a.click();
@@ -473,6 +473,7 @@ function downloadAndClose(jsPsych, participantId) {
     document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Arial;">'
       + '<div style="background:white;padding:40px;border-radius:8px;text-align:center;">'
       + '<h2>Takk for at du ble med i eksperimentet!</h2>'
+      + '<button onclick="location.reload()" style="margin-top:20px;padding:10px 24px;font-size:16px;cursor:pointer;">Start nytt eksperiment</button>'
       + '</div></div>';
   }, 1000);
 }
