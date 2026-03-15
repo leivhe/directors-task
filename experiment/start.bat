@@ -1,5 +1,6 @@
 @echo off
 chcp 65001 >nul
+cd /d "%~dp0"
 
 python --version >nul 2>&1
 if errorlevel 1 (
@@ -13,11 +14,12 @@ echo Starter eksperimentet...
 start /b python -m http.server 8080
 timeout /t 2 /nobreak >nul
 if exist "C:\Program Files\Microsoft\Edge\Application\msedge.exe" (
-    "C:\Program Files\Microsoft\Edge\Application\msedge.exe" --start-fullscreen http://localhost:8080 --no-first-run
+    start "" "C:\Program Files\Microsoft\Edge\Application\msedge.exe" http://localhost:8080
 ) else (
-    "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --start-fullscreen http://localhost:8080  --no-first-run
+    start "" "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" http://localhost:8080
 )
+echo.
+echo Trykk Enter naar eksperimentet er ferdig for aa stoppe serveren...
+pause >nul
 echo Avslutter server...
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr "0.0.0.0:8080"') do taskkill /f /pid %%a >nul 2>&1
-echo Ferdig.
-timeout /t 2 /nobreak >nul
