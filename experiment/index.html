@@ -450,18 +450,23 @@ function downloadCSV(jsPsych, participantId) {
   const lines  = rows.map(r =>
     keep.map(k => JSON.stringify(r[k] ?? '')).join(',')
   );
-  const csv = ['sep=,', header, ...lines].join('\n');
-  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
   const ts = new Date().toLocaleString('sv', {timeZone:'Europe/Oslo'}).replace(' ','_').replace(/:/g,'');
-  a.download = `director_${participantId}_${ts}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  // Frigjer blob-URL etter at nettlesaren har rukke å starte nedlastinga
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  const filename = `director_${participantId}_${ts}.csv`;
+  const csv = ['sep=,', header, ...lines].join('\n');
+
+  fetch('/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename, content: csv })
+  }).catch(() => {
+    // Fallback: last ned i nettlesar viss serveren ikkje svarar
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  });
 }
 
 function downloadAndClose(jsPsych, participantId) {

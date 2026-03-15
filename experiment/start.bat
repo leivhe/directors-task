@@ -11,7 +11,7 @@ if errorlevel 1 (
 )
 
 echo Starter eksperimentet...
-start /b python -m http.server 8080
+start /b python server.py
 timeout /t 2 /nobreak >nul
 if exist "C:\Program Files\Microsoft\Edge\Application\msedge.exe" (
     start "" "C:\Program Files\Microsoft\Edge\Application\msedge.exe" http://localhost:8080
