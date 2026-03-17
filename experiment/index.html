@@ -120,12 +120,15 @@
     <h2>Director Task – oppstart</h2>
     <label for="pid">Deltaker-ID:</label>
     <input type="text" id="pid" placeholder="f.eks. P001" autocomplete="off">
+    <!-- Test-versjon hardkoda til 1. Kommenter ut hidden og aktiver label+select for å velje versjon.
     <label for="tver">Test-versjon (1–6):</label>
     <select id="tver">
       <option value="1">1</option><option value="2">2</option>
       <option value="3">3</option><option value="4">4</option>
       <option value="5">5</option><option value="6">6</option>
     </select>
+    -->
+    <input type="hidden" id="tver" value="1">
     <label style="margin-top:18px;display:flex;align-items:center;gap:8px;font-weight:normal;">
       <input type="checkbox" id="kortversjon" style="width:auto;">
       Kortversjon (3 øving + 3 ekte, bare for testing)
